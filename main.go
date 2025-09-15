@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"math"
 	"strings"
@@ -11,7 +12,12 @@ func main() {
 
 	for {
 		height, weight := getUserInputs()
-		imt := calculateImt(height, weight)
+		imt, error := calculateImt(height, weight)
+
+		if error != nil {
+			fmt.Println("Не задан рост или вес")
+			continue
+		}
 
 		outputResult(imt)
 
@@ -31,10 +37,18 @@ func getUserInputs() (height float64, weight uint8) {
 	return
 }
 
-func calculateImt(height float64, weight uint8) float64 {
+func calculateImt(height float64, weight uint8) (float64, error) {
 	const EXP = 2
 
-	return float64(weight) / math.Pow(height/100, EXP)
+	if height <= 0 {
+		return 0, errors.New("NOT_PROVIDED_HEIGHT")
+	}
+
+	if weight <= 0 {
+		return 0, errors.New("NOT_PROVIDED_WEIGHT")
+	}
+
+	return float64(weight) / math.Pow(height/100, EXP), nil
 }
 
 func outputResult(imt float64) {
@@ -61,7 +75,7 @@ func outputResult(imt float64) {
 
 func checkUserAction() bool {
 	userAction := "y"
-	fmt.Print("Хотите продолжить (y/n)?")
+	fmt.Print("Хотите продолжить (y/n)? ")
 	fmt.Scan(&userAction)
 
 	return strings.ToLower(userAction) == "y" || strings.ToLower(userAction) == "yes"
